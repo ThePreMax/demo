@@ -61,6 +61,32 @@ services:
       - POSTGRES_PASSWORD=public
       - POSTGRES_DB=iot_data
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - $PWD/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=public
+    volumes:
+      - $PWD/emqx-exporter/config/grafana-template/EMQX5-enterprise:/grafana-dashboard-emqx5-ee
+      - $PWD/grafana-dashboards:/grafana-dashboard-IEM
+      - $PWD/grafana-provisioning/dashboard.yaml:/etc/grafana/provisioning/dashboards/dashboard.yaml
+      - $PWD/grafana-provisioning/datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml
+    depends_on:
+      emqx-enterprise:
+        condition: service_healthy
+      timescaledb:
+        condition: service_started
+
 networks:
   emqx-net:
     name: emqx-net
