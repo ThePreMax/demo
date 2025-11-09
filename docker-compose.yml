@@ -36,6 +36,19 @@ services:
       emqx-enterprise:
         condition: service_healthy
 
+  emqx-exporter:
+    image: emqx/emqx-exporter
+    container_name: emqx-exporter
+    ports:
+      - 8085:8085
+    command:
+      - '--emqx.nodes=emqx-enterprise:18083'
+      - '--emqx.auth-username=admin'
+      - '--emqx.auth-password=public'
+    depends_on:
+      emqx-enterprise:
+        condition: service_healthy
+
   timescaledb:
     image: timescale/timescaledb:latest-pg17
     container_name: timescaledb
